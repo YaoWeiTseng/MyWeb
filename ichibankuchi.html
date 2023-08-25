@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<meta http-equiv="content-Type" content="text/html; charset=UTF-8" />
+<html>
+<head>
+  <title>抽獎程式</title>
+  <style>
+    /* 限制圖片大小 */
+    img {
+      max-width: 350px;
+      max-height: 350px;
+    }
+  </style>  
+</head>
+<body>
+  <h1>歡迎參加一番賞抽獎活動！</h1>
+  <button onclick="drawPrize(1)">單抽</button>
+  <button onclick="drawPrize(3)">三抽</button>
+  <button onclick="drawPrize(5)">五抽</button>
+  <div id="result">
+    <h2>抽獎結果：</h2>
+    <ul id="prizeList"></ul>
+  </div>
+
+  <script>
+    // 獎品清單
+    const prizes = [
+      { name: 'A賞', value: 2000, image: './2000_ppt.jpg', count: 1 },
+      { name: 'B賞', value: 1000, image: './1000_ppt.jpg', count: 2 },
+      { name: 'C賞', value: 100, image: './100_ppt.jpg', count: 2 },
+      { name: 'D賞', value: 50, image: './50_ppt.jpg', count: 10 },
+      { name: 'E賞', value: 10, image: './10_ppt.jpg', count: 25 },
+      { name: 'F賞', value: 0, image: './0_ppt.jpg', count: 35 },
+      { name: 'G賞', value: '強迫家事券', image: './work_ppt.jpg', count: 5},
+    ];
+
+    // 將獎項按照獎券張數展開，以便後續隨機抽取
+    const expandedPrizes = prizes.reduce((acc, prize) => {
+      for (let i = 0; i < prize.count; i++) {
+        acc.push(prize);
+      }
+      return acc;
+    }, []);
+
+    // 最大抽籤數上限
+    const maxDrawCount = 15;
+
+    //總抽取籤數
+    let totalDrawCount = 0;
+
+    // 隨機選擇一個獎品
+    function drawPrize(times) {
+//      if (totalDrawCount > maxDrawCount) {
+//        alert('抽獎次數已達上限');
+//        return;
+//      }      
+      
+      if ( totalDrawCount + times <= maxDrawCount) {
+        totalDrawCount = totalDrawCount + times;
+      } else {
+        alert('抽獎次數已達上限，若有剩餘次數未抽畢請選擇單抽');
+        return;
+      }
+      
+      if (expandedPrizes.length === 0) {
+        alert('被你抽光了！');
+        return;
+      }
+
+      const resultElement = document.getElementById('result');
+      const prizeListElement = document.getElementById('prizeList');
+      prizeListElement.innerHTML = '';
+
+      let drawCount = 0;
+
+      while (drawCount < times) {
+        const randomIndex = Math.floor(Math.random() * expandedPrizes.length);
+        const selectedPrize = expandedPrizes[randomIndex];
+
+        expandedPrizes.splice(randomIndex, 1); // 從展開的獎項中移除已抽中的獎項
+
+        drawCount++;
+
+        const listItem = document.createElement('li');
+        const prizeImageElement = document.createElement('img');
+        prizeImageElement.src = selectedPrize.image;
+        prizeImageElement.alt = selectedPrize.name;
+        const prizeNameElement = document.createElement('p');
+        prizeNameElement.textContent = `恭喜您獲得${selectedPrize.name}`;
+        const prizeValueElement = document.createElement('p');
+//        prizeValueElement.textContent =
+//          selectedPrize.value === 0 ? '很遺憾，銘謝惠顧。' : `獎金：${selectedPrize.value}元`;
+        if (selectedPrize.value === 0) {
+          prizeValueElement.textContent = `很遺憾，銘謝惠顧`;
+        } else if (selectedPrize.value === '強迫家事券') {
+          prizeValueElement.textContent = `強迫家事券! 該活動身體囉 ▼・ᴥ・▼`;
+        } else {
+          prizeValueElement.textContent = `獎金：${selectedPrize.value}元`;  
+        }
+
+        listItem.appendChild(prizeNameElement);
+        listItem.appendChild(prizeValueElement);
+        listItem.appendChild(prizeImageElement);
+        prizeListElement.appendChild(listItem);
+      }
+    }
+  </script>
+</body>
+</html>
